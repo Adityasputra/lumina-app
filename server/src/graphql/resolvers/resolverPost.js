@@ -1,4 +1,5 @@
 import { GraphQLError } from "graphql";
+import { ObjectId } from "mongodb";
 
 const resolvers = {
   Query: {
@@ -83,8 +84,48 @@ const resolvers = {
       };
 
       const result = await db.collection("posts").insertOne(newPost);
-      console.log(result, "<< This Result");
+      // console.log(result, "<< This Result");
       return { ...newPost, _id: result.insertedId };
+    },
+    commentPost: async (_, { postId, content }, { db, authentication }) => {
+      const user = await authentication();
+      if (!user) {
+        throw new GraphQLError("User not found");
+      }
+
+      if (!content) {
+        throw new GraphQLError("Content is required");
+      }
+
+      const post = await db
+        .collection("posts")
+        .findOne({ _id: new ObjectId(postId) });
+      if (!post) {
+        throw new GraphQLError("Post not found");
+      }
+
+      const newComment = {
+        content,
+        username: user.username,
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString(),
+      };
+
+      const result = await db.collection("posts").updateOne(
+        { _id: new ObjectId(postId) },
+        {
+          $push: {
+            comments: newComment,
+          },
+        }
+      );
+
+      if (result.modifiedCount === 0) {
+        throw new GraphQLError("Failed to comment on the post");
+      }
+
+      // console.log(result, "<< This Result");
+      return { ...post, comments: [...post.comments, newComment] };
     },
   },
 };

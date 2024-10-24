@@ -5,7 +5,7 @@ const typeDefs = `#graphql
         tags: [String]
         imgUrls: String
         authorId: ID!
-        author: Author!
+        author: Author
         comments: [Comment]
         likes: [Like]
         createdAt: String
@@ -42,6 +42,7 @@ const typeDefs = `#graphql
 
     type Mutation {
         createPost(input: createPost!): Post!
+        commentPost(postId: ID!, content: String!): Post!
     }
 `;
 
