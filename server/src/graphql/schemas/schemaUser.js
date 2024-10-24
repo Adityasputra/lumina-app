@@ -12,6 +12,10 @@ const typeDefs = `#graphql
         users: [User]
     }
 
+    type LoginResponse {
+        token: String!
+    }
+
     input register {
         name: String!
         username: String!
@@ -19,8 +23,14 @@ const typeDefs = `#graphql
         password: String!
     }
 
+    input login {
+        email: String!
+        password: String!
+    }
+
     type Mutation {
         register(input: register!): User!
+        login(input: login!): LoginResponse!
     }
 `;
 
