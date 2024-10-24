@@ -127,6 +127,48 @@ const resolvers = {
       // console.log(result, "<< This Result");
       return { ...post, comments: [...post.comments, newComment] };
     },
+    likePost: async (_, { postId }, { db, authentication }) => {
+      const user = await authentication();
+      if (!user) {
+        throw new GraphQLError("User not found");
+      }
+
+      const post = await db
+        .collection("posts")
+        .findOne({ _id: new ObjectId(postId) });
+      if (!post) {
+        throw new GraphQLError("Post not found");
+      }
+
+      const checkLike = post.likes.find(
+        (like) => like.username === user.username
+      );
+      if (checkLike) {
+        throw new GraphQLError("You have already liked this post");
+      }
+
+      const newLike = {
+        username: user.username,
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString(),
+      };
+
+      const result = await db.collection("posts").updateOne(
+        { _id: new ObjectId(postId) },
+        {
+          $push: {
+            likes: newLike,
+          },
+        }
+      );
+
+      if (result.modifiedCount === 0) {
+        throw new GraphQLError("Failed to like the post");
+      }
+
+      // console.log(result, "<< This Result");
+      return { ...post, likes: [...post.likes, newLike] };
+    },
   },
 };
 
