@@ -10,8 +10,8 @@ import userTypeDefs from "./graphql/schemas/schemaUser.js";
 import { authentication } from "./middlewares/auth.js";
 
 const server = new ApolloServer({
-    typeDefs: [userTypeDefs],
-    resolvers: [userResolvers],
+  typeDefs: [userTypeDefs],
+  resolvers: [userResolvers],
   introspection: true,
 });
 
@@ -22,10 +22,12 @@ const server = new ApolloServer({
 
     const { url } = await startStandaloneServer(server, {
       listen: { port: process.env.PORT || 4000 },
-      context: async () => ({
-        db,
-        authentication: async () => await authentication(req),
-      }),
+      context: async ({ req }) => {
+        return {
+          db,
+          authentication: () => authentication(req),
+        };
+      },
     });
 
     console.log(`🚀 Server ready at: ${url}`);

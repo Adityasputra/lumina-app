@@ -4,6 +4,21 @@ import { signToken } from "../../utils/jwt.js";
 
 const resolvers = {
   Query: {
+    me: async (_, __, context) => {
+      const { db } = context;
+      
+      const user = await context.authentication();
+      if (!user) {
+        throw new GraphQLError("User not found");
+      }
+
+      const userData = await db.collection("users").findOne({ _id: user.id });
+      if (!userData) {
+        throw new GraphQLError("User not found");
+      }
+
+      return userData;
+    },
     users: async (_, __, { db }) => {
       return await db.collection("users").find().toArray();
     },
