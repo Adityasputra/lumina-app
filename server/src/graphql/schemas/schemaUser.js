@@ -8,6 +8,10 @@ const typeDefs = `#graphql
         following: [User]
     }
 
+    type Query {
+        users: [User]
+    }
+
     input register {
         name: String!
         username: String!
@@ -19,3 +23,5 @@ const typeDefs = `#graphql
         register(input: register!): User!
     }
 `;
+
+export default typeDefs;

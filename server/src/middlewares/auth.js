@@ -1,6 +1,6 @@
 import { GraphQLError } from "graphql";
-import { getDatabase } from "../config/mongodb";
-import { verifyToken } from "../utils/jwt";
+import { getDatabase } from "../config/mongodb.js";
+import { verifyToken } from "../utils/jwt.js";
 
 export const authentication = async (req) => {
   try {

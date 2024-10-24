@@ -1,14 +1,17 @@
 import { ApolloServer } from "@apollo/server";
 import { startStandaloneServer } from "@apollo/server/standalone";
-import { connectToDatabase, getDatabase } from "./config/mongodb";
+import { connectToDatabase, getDatabase } from "./config/mongodb.js";
+import dotenv from "dotenv";
 
-if (process.env.NODE_ENV === "production") {
-  require("dotenv").config();
-}
+dotenv.config();
+
+import userResolvers from "./graphql/resolvers/resolverUser.js";
+import userTypeDefs from "./graphql/schemas/schemaUser.js";
+import { authentication } from "./middlewares/auth.js";
 
 const server = new ApolloServer({
-  typeDefs,
-  resolvers,
+    typeDefs: [userTypeDefs],
+    resolvers: [userResolvers],
   introspection: true,
 });
 
@@ -21,6 +24,7 @@ const server = new ApolloServer({
       listen: { port: process.env.PORT || 4000 },
       context: async () => ({
         db,
+        authentication: async () => await authentication(req),
       }),
     });
 
