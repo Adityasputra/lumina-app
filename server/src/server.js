@@ -5,13 +5,18 @@ import dotenv from "dotenv";
 
 dotenv.config();
 
+// Importing the resolvers and typeDefs
 import userResolvers from "./graphql/resolvers/resolverUser.js";
 import userTypeDefs from "./graphql/schemas/schemaUser.js";
+import postResolver from "./graphql/resolvers/resolverPost.js";
+import postTypeDefs from "./graphql/schemas/schemaPost.js";
+
+// Importing the authentication middleware
 import { authentication } from "./middlewares/auth.js";
 
 const server = new ApolloServer({
-  typeDefs: [userTypeDefs],
-  resolvers: [userResolvers],
+  typeDefs: [userTypeDefs, postTypeDefs],
+  resolvers: [userResolvers, postResolver],
   introspection: true,
 });
 
