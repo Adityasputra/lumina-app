@@ -10,13 +10,15 @@ import userResolvers from "./graphql/resolvers/resolverUser.js";
 import userTypeDefs from "./graphql/schemas/schemaUser.js";
 import postResolver from "./graphql/resolvers/resolverPost.js";
 import postTypeDefs from "./graphql/schemas/schemaPost.js";
+import followResolver from "./graphql/resolvers/resolverFollow.js";
+import followTypeDefs from "./graphql/schemas/schemaFollow.js";
 
 // Importing the authentication middleware
 import { authentication } from "./middlewares/auth.js";
 
 const server = new ApolloServer({
-  typeDefs: [userTypeDefs, postTypeDefs],
-  resolvers: [userResolvers, postResolver],
+  typeDefs: [userTypeDefs, postTypeDefs, followTypeDefs],
+  resolvers: [userResolvers, postResolver, followResolver],
   introspection: true,
 });
 
