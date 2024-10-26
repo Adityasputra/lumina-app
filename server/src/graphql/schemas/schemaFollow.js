@@ -5,6 +5,7 @@ const typeDefs = `#graphql
         followingId: ID
         createdAt: String
         updatedAt: String
+        user: Author
     }
 
     type Mutation {

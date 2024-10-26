@@ -5,7 +5,6 @@ const resolvers = {
   Mutation: {
     followUser: async (_, { followingId }, { db, authentication }) => {
       const user = await authentication();
-      // console.log(user, "This is the user");
 
       if (!user) {
         throw new GraphQLError("User not found");
@@ -15,32 +14,34 @@ const resolvers = {
         throw new GraphQLError("You cannot follow yourself");
       }
 
+      // Mengubah followingId dari string ke ObjectId
+      const followingObjectId = new ObjectId(followingId);
+
       const checkUser = await db
         .collection("users")
-        .findOne({ _id: new ObjectId(followingId) });
+        .findOne({ _id: followingObjectId });
       if (!checkUser) {
         throw new GraphQLError("User not found");
       }
 
       const checkFollow = await db
         .collection("follows")
-        .findOne({ followerId: user.id, followingId });
+        .findOne({ followerId: user.id, followingId: followingObjectId });
       if (checkFollow) {
         throw new GraphQLError("You already follow this user");
       }
 
       const newFollow = {
         followerId: user.id,
-        followingId,
+        followingId: followingObjectId, // Simpan sebagai ObjectId
         createdAt: new Date().toISOString(),
         updatedAt: new Date().toISOString(),
       };
 
       const result = await db.collection("follows").insertOne(newFollow);
-      // console.log(result, "This is the result");
 
       await db.collection("users").updateOne(
-        { _id: new ObjectId(followingId) },
+        { _id: followingObjectId },
         {
           $addToSet: { followers: user.id },
         }
@@ -49,7 +50,7 @@ const resolvers = {
       await db.collection("users").updateOne(
         { _id: new ObjectId(user.id) },
         {
-          $addToSet: { following: followingId },
+          $addToSet: { following: followingObjectId }, // Simpan sebagai ObjectId
         }
       );
 

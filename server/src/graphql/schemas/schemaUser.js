@@ -11,10 +11,11 @@ const typeDefs = `#graphql
     type Query {
         me: User
         users: [User]
+        getUserById(id: ID!): User
     }
 
     type LoginResponse {
-        token: String!
+        access_token: String!
     }
 
     input register {

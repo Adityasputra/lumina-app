@@ -1,12 +1,13 @@
 import { GraphQLError } from "graphql";
 import { comparePassword, hashPassword } from "../../utils/bcrptjs.js";
 import { signToken } from "../../utils/jwt.js";
+import { ObjectId } from "mongodb";
 
 const resolvers = {
   Query: {
     me: async (_, __, context) => {
       const { db } = context;
-      
+
       const user = await context.authentication();
       if (!user) {
         throw new GraphQLError("User not found");
@@ -21,6 +22,65 @@ const resolvers = {
     },
     users: async (_, __, { db }) => {
       return await db.collection("users").find().toArray();
+    },
+    getUserById: async (_, { id }, { db }) => {
+      const user = await db
+        .collection("users")
+        .aggregate([
+          {
+            $match: {
+              _id: new ObjectId(id),
+            },
+          },
+          {
+            $lookup: {
+              from: "follows",
+              localField: "_id",
+              foreignField: "followingId",
+              as: "followers",
+            },
+          },
+          {
+            $lookup: {
+              from: "follows",
+              localField: "_id",
+              foreignField: "followerId",
+              as: "following",
+            },
+          },
+          {
+            $lookup: {
+              from: "users",
+              localField: "followers.followerId",
+              foreignField: "_id",
+              as: "followerDetails",
+            },
+          },
+          {
+            $lookup: {
+              from: "users",
+              localField: "following.followingId",
+              foreignField: "_id",
+              as: "followingDetails",
+            },
+          },
+          {
+            $project: {
+              name: 1,
+              username: 1,
+              email: 1,
+              followers: "$followerDetails",
+              following: "$followingDetails",
+            },
+          },
+        ])
+        .toArray();
+
+      if (!user || user.length === 0) {
+        throw new GraphQLError("User not found");
+      }
+
+      return user[0];
     },
   },
   Mutation: {
@@ -73,7 +133,7 @@ const resolvers = {
         throw new GraphQLError("Invalid password");
       }
 
-      const token = signToken({
+      const access_token = signToken({
         id: user._id,
         name: user.name,
         email: user.email,
@@ -87,7 +147,7 @@ const resolvers = {
           username: user.username,
           email: user.email,
         },
-        token,
+        access_token,
       };
     },
   },
