@@ -9,3 +9,7 @@ export const getCachedData = async (key) => {
 export const setCacheData = async (key, value, ttl) => {
   await redis.set(key, JSON.stringify(value), "EX", ttl);
 };
+
+export const deleteCache = async (key) => {
+  await redis.del(key);
+};

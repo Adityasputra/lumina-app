@@ -1,6 +1,10 @@
 import { GraphQLError } from "graphql";
 import { ObjectId } from "mongodb";
-import { getCachedData, setCacheData } from "../../config/redis.js";
+import {
+  deleteCache,
+  getCachedData,
+  setCacheData,
+} from "../../config/redis.js";
 
 const resolvers = {
   Query: {
@@ -198,7 +202,6 @@ const resolvers = {
         content,
         username: user.username,
         createdAt: new Date().toISOString(),
-        updatedAt: new Date().toISOString(),
       };
 
       const result = await db.collection("posts").updateOne(
@@ -214,9 +217,15 @@ const resolvers = {
         throw new GraphQLError("Failed to comment on the post");
       }
 
-      // console.log(result, "<< This Result");
-      return { ...post, comments: [...post.comments, newComment] };
+      await deleteCache("posts");
+
+      const updatedPost = await db
+        .collection("posts")
+        .findOne({ _id: new ObjectId(postId) });
+
+      return updatedPost;
     },
+
     likePost: async (_, { postId }, { db, authentication }) => {
       const user = await authentication();
       if (!user) {
@@ -256,8 +265,13 @@ const resolvers = {
         throw new GraphQLError("Failed to like the post");
       }
 
-      // console.log(result, "<< This Result");
-      return { ...post, likes: [...post.likes, newLike] };
+      await deleteCache("posts");
+
+      const updatedPost = await db
+        .collection("posts")
+        .findOne({ _id: new ObjectId(postId) });
+
+      return updatedPost;
     },
   },
 };
