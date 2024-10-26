@@ -1,9 +1,15 @@
 import { GraphQLError } from "graphql";
 import { ObjectId } from "mongodb";
+import { getCachedData, setCacheData } from "../../config/redis.js";
 
 const resolvers = {
   Query: {
     getPosts: async (_, __, { db }) => {
+      const cachedPosts = await getCachedData("posts");
+      if (cachedPosts) {
+        return cachedPosts;
+      }
+
       const posts = await db
         .collection("posts")
         .aggregate([
@@ -43,6 +49,7 @@ const resolvers = {
 
       // console.log(posts, "<< This Posts");
 
+      await setCacheData("posts", posts, 60);
       return posts.map((post) => ({
         ...post,
         author: {
