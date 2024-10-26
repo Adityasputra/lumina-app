@@ -32,6 +32,7 @@ const typeDefs = `#graphql
 
     type Query {
         getPosts: [Post]
+        getPostById(id: ID!): Post
     }
 
     input createPost {

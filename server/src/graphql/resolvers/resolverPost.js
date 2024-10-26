@@ -60,6 +60,89 @@ const resolvers = {
 
       // return posts;
     },
+    getPostById: async (_, { id }, { db }) => {
+      const cachedPost = await getCachedData(`post:${id}`);
+      if (cachedPost) {
+        return cachedPost;
+      }
+
+      const post = await db
+        .collection("posts")
+        .aggregate([
+          {
+            $match:
+              /**
+               * query: The query in MQL.
+               */
+              {
+                _id: new ObjectId("671a01312e15f8a79e8291cd"),
+              },
+          },
+          {
+            $lookup:
+              /**
+               * from: The target collection.
+               * localField: The local join field.
+               * foreignField: The target join field.
+               * as: The name for the results.
+               * pipeline: Optional pipeline to run on the foreign collection.
+               * let: Optional variables to use in the pipeline field stages.
+               */
+              {
+                from: "users",
+                localField: "authorId",
+                foreignField: "_id",
+                as: "author",
+              },
+          },
+          {
+            $unwind:
+              /**
+               * path: Path to the array field.
+               * includeArrayIndex: Optional name for index.
+               * preserveNullAndEmptyArrays: Optional
+               *   toggle to unwind null and empty values.
+               */
+              {
+                path: "$author",
+                includeArrayIndex: "string",
+                preserveNullAndEmptyArrays: true,
+              },
+          },
+          {
+            $project:
+              /**
+               * specifications: The fields to
+               *   include or exclude.
+               */
+              {
+                _id: 1,
+                content: 1,
+                tags: 1,
+                imgUrls: 1,
+                authorId: 1,
+                likes: 1,
+                comments: 1,
+                createdAt: 1,
+                updatedAt: 1,
+                "author.name": 1,
+                "author.username": 1,
+              },
+          },
+        ])
+        .toArray();
+
+      await setCacheData(`post:${id}`, post[0], 60);
+      return post[0]
+        ? {
+            ...post[0],
+            author: {
+              name: post[0].author.name,
+              username: post[0].author.username,
+            },
+          }
+        : null;
+    },
   },
   Mutation: {
     createPost: async (_, { input }, { db, authentication }) => {
