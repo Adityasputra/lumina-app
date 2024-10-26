@@ -12,6 +12,7 @@ const typeDefs = `#graphql
         me: User
         users: [User]
         getUserById(id: ID!): User
+        searchUser(keyword: String!): [User]
     }
 
     type LoginResponse {

@@ -82,6 +82,27 @@ const resolvers = {
 
       return user[0];
     },
+    searchUser: async (_, { keyword }, { db }) => {
+      const result = await db
+        .collection("users")
+        .find(
+          {
+            $or: [
+              { name: { $regex: keyword, $options: "i" } },
+              { username: { $regex: keyword, $options: "i" } },
+            ],
+          },
+          {
+            projection: {
+              password: 0,
+            },
+            limit: 10,
+          }
+        )
+        .toArray();
+
+      return result;
+    },
   },
   Mutation: {
     register: async (_, { input }, { db }) => {
