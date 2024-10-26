@@ -10,12 +10,11 @@ const resolvers = {
         throw new GraphQLError("User not found");
       }
 
-      if (user.id === followingId) {
+      const followingObjectId = new ObjectId(followingId);
+      
+      if (user.id === followingObjectId) {
         throw new GraphQLError("You cannot follow yourself");
       }
-
-      // Mengubah followingId dari string ke ObjectId
-      const followingObjectId = new ObjectId(followingId);
 
       const checkUser = await db
         .collection("users")
@@ -33,7 +32,7 @@ const resolvers = {
 
       const newFollow = {
         followerId: user.id,
-        followingId: followingObjectId, // Simpan sebagai ObjectId
+        followingId: followingObjectId,
         createdAt: new Date().toISOString(),
         updatedAt: new Date().toISOString(),
       };
@@ -50,7 +49,7 @@ const resolvers = {
       await db.collection("users").updateOne(
         { _id: new ObjectId(user.id) },
         {
-          $addToSet: { following: followingObjectId }, // Simpan sebagai ObjectId
+          $addToSet: { following: followingObjectId },
         }
       );
 

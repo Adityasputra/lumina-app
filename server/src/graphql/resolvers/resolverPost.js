@@ -42,6 +42,8 @@ const resolvers = {
               tags: 1,
               imgUrls: 1,
               authorId: 1,
+              likes: 1,
+              comments: 1,
               createdAt: 1,
               updatedAt: 1,
               "author.username": 1,
@@ -79,7 +81,7 @@ const resolvers = {
                * query: The query in MQL.
                */
               {
-                _id: new ObjectId("671a01312e15f8a79e8291cd"),
+                _id: new ObjectId(id),
               },
           },
           {
