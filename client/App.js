@@ -1,13 +1,16 @@
 import { ApolloProvider } from "@apollo/client";
-import { StyleSheet, Text, View } from "react-native";
 import MainStack from "./src/navigations/MainStack";
 import client from "./src/apollo/ApolloClient";
+import AuthProvider from "./src/contexts/AuthContext";
+import { Text } from "react-native";
 
 export default function App() {
   return (
-    <ApolloProvider client={client}>
-      <MainStack />
-    </ApolloProvider>
+    <AuthProvider>
+      <ApolloProvider client={client}>
+        <MainStack />
+      </ApolloProvider>
+    </AuthProvider>
   );
 }
 
