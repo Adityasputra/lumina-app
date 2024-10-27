@@ -3,7 +3,9 @@ import {
   InMemoryCache,
   ApolloProvider,
   gql,
+  createHttpLink,
 } from "@apollo/client";
+import { setContext } from "@apollo/client/link/context";
 import { getItemAsync } from "expo-secure-store";
 
 const httpLink = createHttpLink({
