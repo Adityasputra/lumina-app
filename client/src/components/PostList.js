@@ -1,5 +1,4 @@
 import { StyleSheet, Text, View, Image, TouchableOpacity } from "react-native";
-
 import AntDesign from "@expo/vector-icons/AntDesign";
 import FontAwesome from "@expo/vector-icons/FontAwesome";
 
@@ -9,17 +8,19 @@ export default function PostList({ item }) {
       <View style={styles.header}>
         <View style={styles.profile} />
         <View style={styles.userInfo}>
-          <Text style={styles.username}>{item.username}</Text>
+          <Text style={styles.username}>{item.author.username}</Text>
           <View style={styles.subProfile}>
-            <Text style={styles.name}>{item.location}</Text>
-            <Text style={styles.dateText}>{item.date}</Text>
+            <Text style={styles.name}>{item.author.name}</Text>
+            <Text style={styles.dateText}>
+              {new Date(item.createdAt).toLocaleDateString()}
+            </Text>
           </View>
         </View>
       </View>
 
       <View style={styles.imageContainer}>
         <Image
-          source={{ uri: item.image }}
+          source={{ uri: item.imgUrls }}
           style={styles.image}
           resizeMode="cover"
         />
@@ -27,19 +28,19 @@ export default function PostList({ item }) {
 
       <View style={styles.containerTitle}>
         <Text style={styles.descriptionText} numberOfLines={2}>
-          {item.description}
+          {item.content}
         </Text>
       </View>
 
       <View style={styles.actionsContainer}>
         <TouchableOpacity style={styles.button}>
           <AntDesign name="hearto" size={20} color="black" />
-          <Text style={styles.buttonText}>{item.likes}</Text>
+          <Text style={styles.buttonText}>{item.likes.length}</Text>
         </TouchableOpacity>
 
         <TouchableOpacity style={styles.button}>
           <FontAwesome name="comment-o" size={20} color="black" />
-          <Text style={styles.buttonText}>{item.comments}</Text>
+          <Text style={styles.buttonText}>{item.comments.length}</Text>
         </TouchableOpacity>
       </View>
     </View>
@@ -54,14 +55,6 @@ const styles = StyleSheet.create({
     width: "90%",
     marginHorizontal: "5%",
     padding: 10,
-    // shadowColor: "#000",
-    // shadowOffset: {
-    //   width: 0,
-    //   height: 3,
-    // },
-    // shadowOpacity: 0.15,
-    // shadowRadius: 6,
-    // elevation: 3,
     marginTop: 20,
   },
   header: {
