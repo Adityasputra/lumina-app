@@ -10,8 +10,47 @@ import Fontisto from "@expo/vector-icons/Fontisto";
 import FontAwesome from "@expo/vector-icons/FontAwesome";
 import FontAwesome6 from "@expo/vector-icons/FontAwesome6";
 import MaterialIcons from "@expo/vector-icons/MaterialIcons";
+import { useState } from "react";
+import { Register } from "../apollo/queries/queryUser";
+import { useMutation } from "@apollo/client";
 
 export default function RegisterScreen({ navigation }) {
+  const [name, setName] = useState("");
+  const [username, setUsername] = useState("");
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [register, { data, loading, error }] = useMutation(Register);
+
+  const handleRegister = async () => {
+    if (!email || !password || !name || !username) {
+      alert("Please fill in all fields.");
+      return;
+    }
+
+    try {
+      const newUser = {
+        email,
+        password,
+        name,
+        username,
+      };
+
+      const response = await register({
+        variables: {
+          input: newUser,
+        },
+      });
+
+      if (response.data.register) {
+        console.log("User registered successfully:", response.data.register);
+        navigation.navigate("Login");
+      }
+    } catch (error) {
+      console.error("Registration error:", error);
+      alert("Registration failed. Please check your details.");
+    }
+  };
+
   return (
     <View style={styles.container}>
       <View style={styles.containerHeader}>
@@ -32,6 +71,7 @@ export default function RegisterScreen({ navigation }) {
           <TextInput
             style={styles.input}
             placeholder="Name"
+            onChangeText={setName}
             placeholderTextColor="#aaa"
           />
         </View>
@@ -45,6 +85,7 @@ export default function RegisterScreen({ navigation }) {
           <TextInput
             style={styles.input}
             placeholder="Username"
+            onChangeText={setUsername}
             placeholderTextColor="#aaa"
           />
         </View>
@@ -58,6 +99,7 @@ export default function RegisterScreen({ navigation }) {
           <TextInput
             style={styles.input}
             placeholder="Email"
+            onChangeText={setEmail}
             placeholderTextColor="#aaa"
           />
         </View>
@@ -66,11 +108,12 @@ export default function RegisterScreen({ navigation }) {
           <TextInput
             style={styles.input}
             placeholder="Password"
+            onChangeText={setPassword}
             placeholderTextColor="#aaa"
             secureTextEntry
           />
         </View>
-        <TouchableOpacity style={styles.buttonSubmit} onPress={() => {}}>
+        <TouchableOpacity style={styles.buttonSubmit} onPress={handleRegister}>
           <Text style={styles.buttonText}>Sign Up</Text>
         </TouchableOpacity>
         <Pressable
