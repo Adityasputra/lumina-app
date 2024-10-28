@@ -7,11 +7,51 @@ import {
   View,
 } from "react-native";
 import Fontisto from "@expo/vector-icons/Fontisto";
-import FontAwesome from "@expo/vector-icons/FontAwesome";
-import FontAwesome6 from "@expo/vector-icons/FontAwesome6";
 import MaterialIcons from "@expo/vector-icons/MaterialIcons";
+import { useContext, useState } from "react";
+import { AuthContext } from "../contexts/AuthContext";
+import { useMutation } from "@apollo/client";
+import { Login } from "../apollo/queries/queryUser";
+import { setItemAsync } from "expo-secure-store";
+import Toast from "react-native-root-toast";
 
 export default function RegisterScreen({ navigation }) {
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [login, { data, loading, error }] = useMutation(Login);
+  const { setIsSignedIn } = useContext(AuthContext);
+
+  const handleLogin = async () => {
+    try {
+      const user = {
+        email,
+        password,
+      };
+
+      const response = await login({
+        variables: {
+          input: user,
+        },
+      });
+
+      const { access_token } = response.data.login;
+      await setItemAsync("access_token", access_token);
+      setIsSignedIn(true);
+    } catch (error) {
+      if (error.graphQLErrors && error.graphQLErrors.length > 0) {
+        Toast.show(error.graphQLErrors[0].message, {
+          duration: Toast.durations.LONG,
+          position: Toast.positions.CENTER,
+        });
+      } else {
+        Toast.show("Login failed. Please try again.", {
+          duration: Toast.durations.LONG,
+          position: Toast.positions.CENTER,
+        });
+      }
+      console.log(error);
+    }
+  };
   return (
     <View style={styles.container}>
       <View style={styles.containerHeader}>
@@ -33,6 +73,7 @@ export default function RegisterScreen({ navigation }) {
           <TextInput
             style={styles.input}
             placeholder="Email"
+            onChangeText={setEmail}
             placeholderTextColor="#aaa"
           />
         </View>
@@ -41,11 +82,12 @@ export default function RegisterScreen({ navigation }) {
           <TextInput
             style={styles.input}
             placeholder="Password"
+            onChangeText={setPassword}
             placeholderTextColor="#aaa"
             secureTextEntry
           />
         </View>
-        <TouchableOpacity style={styles.buttonSubmit} onPress={() => {}}>
+        <TouchableOpacity style={styles.buttonSubmit} onPress={handleLogin}>
           <Text style={styles.buttonText}>Login</Text>
         </TouchableOpacity>
         <Pressable

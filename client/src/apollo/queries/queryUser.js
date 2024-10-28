@@ -16,3 +16,11 @@ export const Register = gql`
     }
   }
 `;
+
+export const Login = gql`
+  mutation Mutation($input: login!) {
+    login(input: $input) {
+      access_token
+    }
+  }
+`;
