@@ -4,22 +4,26 @@ import LoginScreen from "../screens/LoginScreen";
 import { StyleSheet } from "react-native";
 import HomeScreen from "../screens/HomeScreen";
 import LoadingScreen from "../screens/LandingScreen";
+import RegisterScreen from "../screens/RegisterScreen";
 
 const Stack = createNativeStackNavigator();
 
 export default function UnAuthStackScreen() {
   return (
     <SafeAreaProvider>
-      <SafeAreaView style={styles.container}>
-        <Stack.Navigator>
-          <Stack.Screen
-            name="Landing"
-            component={LoadingScreen}
-            options={{ headerShown: false }}
-          />
-          <Stack.Screen name="Login" component={LoginScreen} />
-        </Stack.Navigator>
-      </SafeAreaView>
+      <Stack.Navigator>
+        <Stack.Screen
+          name="Landing"
+          component={LoadingScreen}
+          options={{ headerShown: false }}
+        />
+        <Stack.Screen
+          name="Register"
+          component={RegisterScreen}
+          options={{ headerTitle: "", headerShadowVisible: false }}
+        />
+        <Stack.Screen name="Login" component={LoginScreen} />
+      </Stack.Navigator>
     </SafeAreaProvider>
   );
 }

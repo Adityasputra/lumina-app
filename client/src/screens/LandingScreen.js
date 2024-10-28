@@ -1,9 +1,10 @@
 import { StyleSheet, Text, TouchableOpacity, View } from "react-native";
 import Logo from "../assets/social.svg";
+import { SafeAreaView } from "react-native-safe-area-context";
 
 export default function LoadingScreen({ navigation }) {
   return (
-    <View style={styles.container}>
+    <SafeAreaView style={styles.container}>
       <View style={styles.header}>
         <Text style={styles.headerText}>Lumina</Text>
       </View>
@@ -23,16 +24,19 @@ export default function LoadingScreen({ navigation }) {
         <View style={styles.containerButton}>
           <TouchableOpacity
             style={styles.buttonStart}
-            onPress={() => navigation.navigate("Login")}
+            onPress={() => navigation.navigate("Register")}
           >
             <Text style={styles.buttonText}>Get Started</Text>
           </TouchableOpacity>
-          <TouchableOpacity style={styles.buttonLogin}>
+          <TouchableOpacity
+            style={styles.buttonLogin}
+            onPress={() => navigation.navigate("Login")}
+          >
             <Text style={styles.buttonLoginText}>Login</Text>
           </TouchableOpacity>
         </View>
       </View>
-    </View>
+    </SafeAreaView>
   );
 }
 
