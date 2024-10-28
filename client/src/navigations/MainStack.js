@@ -2,6 +2,8 @@ import { NavigationContainer } from "@react-navigation/native";
 import UnAuthStackScreen, { AuthStackScreen } from "./StackScreen";
 import { AuthContext } from "../contexts/AuthContext";
 import { useContext, useEffect, useState } from "react";
+import { getItemAsync } from "expo-secure-store";
+import { ActivityIndicator, View } from "react-native";
 
 export default function MainStack() {
   const { isSignedIn, setIsSignedIn } = useContext(AuthContext);
