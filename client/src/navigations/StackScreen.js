@@ -22,7 +22,11 @@ export default function UnAuthStackScreen() {
           component={RegisterScreen}
           options={{ headerTitle: "", headerShadowVisible: false }}
         />
-        <Stack.Screen name="Login" component={LoginScreen} />
+        <Stack.Screen
+          name="Login"
+          component={LoginScreen}
+          options={{ headerTitle: "", headerShadowVisible: false }}
+        />
       </Stack.Navigator>
     </SafeAreaProvider>
   );
