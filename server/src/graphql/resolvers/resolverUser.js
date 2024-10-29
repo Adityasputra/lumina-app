@@ -30,6 +30,7 @@ const resolvers = {
     users: async (_, __, { db }) => {
       return await db.collection("users").find().toArray();
     },
+
     getUserById: async (_, { id }, { db }) => {
       const user = await db
         .collection("users")
@@ -84,11 +85,16 @@ const resolvers = {
         .toArray();
 
       if (!user || user.length === 0) {
-        throw new GraphQLError("User not found");
+        throw new GraphQLError("User not found", {
+          extensions: {
+            code: "BAD_USER_INPUT",
+          },
+        });
       }
 
       return user[0];
     },
+
     searchUser: async (_, { keyword }, { db }) => {
       const result = await db
         .collection("users")
