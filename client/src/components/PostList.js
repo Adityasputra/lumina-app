@@ -1,8 +1,43 @@
 import { StyleSheet, Text, View, Image, TouchableOpacity } from "react-native";
 import AntDesign from "@expo/vector-icons/AntDesign";
 import FontAwesome from "@expo/vector-icons/FontAwesome";
+import { useMutation } from "@apollo/client";
+import { LIKE_POST } from "../apollo/queries/queryPost";
+import Toast from "react-native-toast-message";
 
 export default function PostList({ item }) {
+  const [like, { data, loading, error }] = useMutation(LIKE_POST);
+
+  const handleLike = async () => {
+    try {
+      await like({
+        variables: {
+          postId: item._id,
+        },
+      });
+    } catch (err) {
+      if (err.graphQLErrors && err.graphQLErrors.length > 0) {
+        Toast.show({
+          type: "error",
+          text1: err.graphQLErrors[0].message,
+          position: "bottom",
+          visibilityTime: 2000,
+          autoHide: true,
+          topOffset: 30,
+          bottomOffset: 40,
+          onShow: () => {},
+          onHide: () => {},
+          onPress: () => {},
+          props: {
+            backgroundColor: "#E53835",
+            textColor: "#FFF",
+          },
+        });
+      } else {
+        console.log("Error:", err);
+      }
+    }
+  };
   return (
     <View style={styles.containerContent}>
       <View style={styles.header}>
@@ -33,7 +68,7 @@ export default function PostList({ item }) {
       </View>
 
       <View style={styles.actionsContainer}>
-        <TouchableOpacity style={styles.button}>
+        <TouchableOpacity style={styles.button} onPress={handleLike}>
           <AntDesign name="hearto" size={20} color="black" />
           <Text style={styles.buttonText}>{item.likes.length}</Text>
         </TouchableOpacity>

@@ -1,13 +1,10 @@
-import {
-  StyleSheet,
-  View,
-  FlatList,
-  ActivityIndicator,
-  Text,
-} from "react-native";
+import { StyleSheet, View, FlatList, TouchableOpacity } from "react-native";
 import PostList from "../../components/PostList";
 import { useQuery } from "@apollo/client";
 import { GET_POSTS } from "../../apollo/queries/queryPost";
+import { useContext } from "react";
+import { AuthContext } from "../../contexts/AuthContext";
+import { deleteItemAsync } from "expo-secure-store";
 
 export default function HomeScreen() {
   const { data, error, loading } = useQuery(GET_POSTS);

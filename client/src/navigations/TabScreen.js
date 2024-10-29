@@ -1,5 +1,6 @@
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
 import HomeScreen from "../screens/auth/HomeScreen";
+import PostScreen from "../screens/auth/PostScreen";
 const Tab = createBottomTabNavigator();
 export default function TabScreen() {
   return (
@@ -9,6 +10,7 @@ export default function TabScreen() {
         component={HomeScreen}
         options={{ headerTitle: "Lumina" }}
       />
+      <Tab.Screen name="Post" component={PostScreen} />
     </Tab.Navigator>
   );
 }
