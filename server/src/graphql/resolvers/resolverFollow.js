@@ -7,27 +7,43 @@ const resolvers = {
       const user = await authentication();
 
       if (!user) {
-        throw new GraphQLError("User not found");
+        throw new GraphQLError("User not found", {
+          extensions: {
+            code: "UNAUTHENTICATED",
+          },
+        });
       }
 
       const followingObjectId = new ObjectId(followingId);
-      
-      if (user.id === followingObjectId) {
-        throw new GraphQLError("You cannot follow yourself");
+
+      if (user.id === followingObjectId.toString()) {
+        throw new GraphQLError("You cannot follow yourself", {
+          extensions: {
+            code: "BAD_USER_INPUT",
+          },
+        });
       }
 
       const checkUser = await db
         .collection("users")
         .findOne({ _id: followingObjectId });
       if (!checkUser) {
-        throw new GraphQLError("User not found");
+        throw new GraphQLError("User not found", {
+          extensions: {
+            code: "NOT_FOUND",
+          },
+        });
       }
 
       const checkFollow = await db
         .collection("follows")
         .findOne({ followerId: user.id, followingId: followingObjectId });
       if (checkFollow) {
-        throw new GraphQLError("You already follow this user");
+        throw new GraphQLError("You already follow this user", {
+          extensions: {
+            code: "BAD_USER_INPUT",
+          },
+        });
       }
 
       const newFollow = {
