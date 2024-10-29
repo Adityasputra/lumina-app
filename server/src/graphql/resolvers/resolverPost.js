@@ -186,18 +186,30 @@ const resolvers = {
     commentPost: async (_, { postId, content }, { db, authentication }) => {
       const user = await authentication();
       if (!user) {
-        throw new GraphQLError("User not found");
+        throw new GraphQLError("User not found", {
+          extensions: {
+            code: "UNAUTHENTICATED",
+          },
+        });
       }
 
       if (!content) {
-        throw new GraphQLError("Content is required");
+        throw new GraphQLError("Content is required", {
+          extensions: {
+            code: "BAD_USER_INPUT",
+          },
+        });
       }
 
       const post = await db
         .collection("posts")
         .findOne({ _id: new ObjectId(postId) });
       if (!post) {
-        throw new GraphQLError("Post not found");
+        throw new GraphQLError("Post not found", {
+          extensions: {
+            code: "NOT_FOUND",
+          },
+        });
       }
 
       const newComment = {
@@ -216,7 +228,11 @@ const resolvers = {
       );
 
       if (result.modifiedCount === 0) {
-        throw new GraphQLError("Failed to comment on the post");
+        throw new GraphQLError("Failed to comment on the post", {
+          extensions: {
+            code: "INTERNAL_SERVER_ERROR",
+          },
+        });
       }
 
       await deleteCache("posts");
@@ -230,22 +246,37 @@ const resolvers = {
 
     likePost: async (_, { postId }, { db, authentication }) => {
       const user = await authentication();
+
       if (!user) {
-        throw new GraphQLError("User not found");
+        throw new GraphQLError("User not found", {
+          extensions: {
+            code: "UNAUTHENTICATED",
+          },
+        });
       }
 
       const post = await db
         .collection("posts")
         .findOne({ _id: new ObjectId(postId) });
+
       if (!post) {
-        throw new GraphQLError("Post not found");
+        throw new GraphQLError("Post not found", {
+          extensions: {
+            code: "NOT_FOUND",
+          },
+        });
       }
 
       const checkLike = post.likes.find(
         (like) => like.username === user.username
       );
+
       if (checkLike) {
-        throw new GraphQLError("You have already liked this post");
+        throw new GraphQLError("You have already liked this post", {
+          extensions: {
+            code: "BAD_USER_INPUT",
+          },
+        });
       }
 
       const newLike = {
@@ -254,17 +285,19 @@ const resolvers = {
         updatedAt: new Date().toISOString(),
       };
 
-      const result = await db.collection("posts").updateOne(
-        { _id: new ObjectId(postId) },
-        {
-          $push: {
-            likes: newLike,
-          },
-        }
-      );
+      const result = await db
+        .collection("posts")
+        .updateOne(
+          { _id: new ObjectId(postId) },
+          { $push: { likes: newLike } }
+        );
 
       if (result.modifiedCount === 0) {
-        throw new GraphQLError("Failed to like the post");
+        throw new GraphQLError("Failed to like the post", {
+          extensions: {
+            code: "INTERNAL_SERVER_ERROR",
+          },
+        });
       }
 
       await deleteCache("posts");
