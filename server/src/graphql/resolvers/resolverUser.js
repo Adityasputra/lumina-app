@@ -175,12 +175,20 @@ const resolvers = {
 
       const user = await db.collection("users").findOne({ email });
       if (!user) {
-        throw new GraphQLError("User not found");
+        throw new GraphQLError("User not found", {
+          extensions: {
+            code: "BAD_USER_INPUT",
+          },
+        });
       }
 
       const isPasswordValid = comparePassword(password, user.password);
       if (!isPasswordValid) {
-        throw new GraphQLError("Invalid password");
+        throw new GraphQLError("Invalid password", {
+          extensions: {
+            code: "BAD_USER_INPUT",
+          },
+        });
       }
 
       const access_token = signToken({
