@@ -155,21 +155,33 @@ const resolvers = {
       const { content, tags, imgUrls } = input;
 
       const user = await authentication();
-      console.log(user, "<<<< This User");
+      // console.log(user, "<<<< This User");
       if (!user) {
-        throw new GraphQLError("User not found");
+        throw new GraphQLError("User not found", {
+          extensions: {
+            code: "UNAUTHENTICATED",
+          },
+        });
       }
 
       if (!content) {
-        throw new GraphQLError("Content is required");
+        throw new GraphQLError("Content is required", {
+          extensions: {
+            code: "BAD_USER_INPUT",
+          },
+        });
       }
 
       if (imgUrls && typeof imgUrls !== "string") {
-        throw new GraphQLError("Invalid image URL format");
+        throw new GraphQLError("Invalid image URL format", {
+          extensions: {
+            code: "BAD_USER_INPUT",
+          },
+        });
       }
 
       const newPost = {
-        content: content,
+        content,
         tags: tags || [],
         imgUrls: imgUrls || "",
         authorId: user.id,
@@ -180,9 +192,18 @@ const resolvers = {
       };
 
       const result = await db.collection("posts").insertOne(newPost);
-      // console.log(result, "<< This Result");
+
+      if (!result.acknowledged) {
+        throw new GraphQLError("Failed to create post", {
+          extensions: {
+            code: "INTERNAL_SERVER_ERROR",
+          },
+        });
+      }
+
       return { ...newPost, _id: result.insertedId };
     },
+
     commentPost: async (_, { postId, content }, { db, authentication }) => {
       const user = await authentication();
       if (!user) {
