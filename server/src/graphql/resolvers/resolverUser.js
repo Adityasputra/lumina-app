@@ -123,21 +123,37 @@ const resolvers = {
 
       const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
       if (!emailRegex.test(email)) {
-        throw new GraphQLError("Invalid email");
+        throw new GraphQLError("Invalid email", {
+          extensions: {
+            code: "BAD_USER_INPUT",
+          },
+        });
       }
 
       const checkUsername = await db.collection("users").findOne({ username });
       if (checkUsername) {
-        throw new GraphQLError("Username already exists");
+        throw new GraphQLError("Username already exists", {
+          extensions: {
+            code: "BAD_USER_INPUT",
+          },
+        });
       }
 
       const checkEmail = await db.collection("users").findOne({ email });
       if (checkEmail) {
-        throw new GraphQLError("Email already exists");
+        throw new GraphQLError("Email already exists", {
+          extensions: {
+            code: "BAD_USER_INPUT",
+          },
+        });
       }
 
       if (password.length < 6) {
-        throw new GraphQLError("Password must be at least 6 characters long");
+        throw new GraphQLError("Password must be at least 6 characters long", {
+          extensions: {
+            code: "BAD_USER_INPUT",
+          },
+        });
       }
 
       const hashedPassword = hashPassword(password);
@@ -151,9 +167,9 @@ const resolvers = {
       };
 
       const result = await db.collection("users").insertOne(newUser);
-      //   console.log(result, "<< This Result");
       return { ...newUser, _id: result.insertedId };
     },
+
     login: async (_, { input }, { db }) => {
       const { email, password } = input;
 
